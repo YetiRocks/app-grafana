@@ -13,15 +13,15 @@ resource!(Search {
         // Connection test — Grafana SimpleJSON calls GET on the datasource root
         reply().json(json!({"status": "ok", "message": "Yeti Grafana Datasource"}))
     },
-    create(request, ctx) => {
+    post(request, ctx) => {
         let body: Value = request.json()?;
         let filter = body["target"].as_str().unwrap_or("");
-        let base_url = get_base_url(ctx).await;
+        let base_url = get_base_url(&ctx).await;
 
         let mut targets: Vec<String> = Vec::new();
 
         // Fetch app list from /health or /admin/apps
-        if let Ok(resp) = fetch(&format!("{}/health", base_url), None) {
+        if let Ok(resp) = fetch!(&format!("{}/health", base_url)).send() {
             if resp.ok() {
                 let parsed: Value = serde_json::from_str(&resp.body).unwrap_or(json!({}));
                 if let Some(apps) = parsed["applicationList"].as_array() {

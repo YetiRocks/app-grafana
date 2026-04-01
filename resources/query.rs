@@ -13,12 +13,12 @@ use yeti_sdk::prelude::*;
 // Target format: "app_id/TableName" (e.g., "yeti-telemetry/Log")
 resource!(Query {
     name = "query",
-    create(request, ctx) => {
+    post(request, ctx) => {
         let body: Value = request.json()?;
         let targets = body["targets"].as_array()
             .ok_or_else(|| YetiError::Validation("missing targets array".into()))?;
         let max_points = body["maxDataPoints"].as_u64().unwrap_or(100) as usize;
-        let base_url = get_base_url(ctx).await;
+        let base_url = get_base_url(&ctx).await;
 
         let mut results: Vec<Value> = Vec::new();
 
@@ -37,7 +37,7 @@ resource!(Query {
 
             // Fetch records from the table via REST
             let url = format!("{}/{}/{}?limit={}", base_url, app_id, table_name, max_points);
-            let resp = match fetch(&url, None) {
+            let resp = match fetch!(&url).send() {
                 Ok(r) => r,
                 Err(_) => continue,
             };
