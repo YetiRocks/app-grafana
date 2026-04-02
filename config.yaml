@@ -1,5 +1,6 @@
 name: "Grafana Datasource"
 app_id: "app-grafana"
+customer_id: "yeti"
 version: "0.1.0"
 description: "Grafana SimpleJSON datasource — query yeti tables from Grafana dashboards"
 
