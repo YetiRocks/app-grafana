@@ -48,7 +48,7 @@ Restart yeti. app-grafana compiles automatically on first load (~2 minutes) and 
 ### 2. Test the connection
 
 ```bash
-curl -k https://localhost:9996/app-grafana/search \
+curl -k https://localhost/app-grafana/api/search \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -66,7 +66,7 @@ If you see `{"status": "ok"}`, the datasource is running and ready for Grafana.
 3. Search for **SimpleJSON** and select it
 4. Configure the connection:
    - **Name:** `Yeti`
-   - **URL:** `https://localhost:9996/app-grafana`
+   - **URL:** `https://localhost/app-grafana`
    - **Access:** `Server (default)`
 5. Under **Auth**, check **Skip TLS Verify** (for self-signed dev certs)
 6. Under **Custom HTTP Headers**, add:
@@ -112,7 +112,7 @@ Grafana Dashboard
 +---------------------------------------------------+
     |
     v
-Yeti REST API (http://127.0.0.1:9996)
+Yeti REST API (http://127.0.0.1)
     |
     +-- GET /health           -> application list
     +-- GET /{app}/{Table}    -> table records
@@ -131,7 +131,7 @@ Yeti REST API (http://127.0.0.1:9996)
 Grafana calls `GET /search` when you click **Save & Test** on the datasource configuration page. app-grafana returns a simple status response:
 
 ```bash
-curl -k https://localhost:9996/app-grafana/search \
+curl -k https://localhost/app-grafana/api/search \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -147,7 +147,7 @@ Grafana interprets any 200 response as a successful connection.
 Grafana calls `POST /search` to populate the metric/target dropdown in the panel editor. app-grafana fetches the application list from the yeti `/health` endpoint and returns matching app IDs:
 
 ```bash
-curl -k -X POST https://localhost:9996/app-grafana/search \
+curl -k -X POST https://localhost/app-grafana/api/search \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{ "target": "" }'
@@ -285,7 +285,7 @@ Runtime configuration for the datasource. A single record with `id: "default"` c
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `id` | ID! (primary key) | `"default"` | Configuration key |
-| `baseUrl` | String | `http://127.0.0.1:9996` | Yeti base URL for internal API calls |
+| `baseUrl` | String | `http://127.0.0.1` | Yeti base URL for internal API calls |
 | `allowedApps` | String | `""` (all apps) | JSON array of app_ids to expose in search (empty = all) |
 | `timeField` | String | `"createdAt"` | Default time field name for timestamp extraction |
 
@@ -318,7 +318,7 @@ sudo systemctl restart grafana-server
 | Setting | Value |
 |---------|-------|
 | **Name** | `Yeti` (or any descriptive name) |
-| **URL** | `https://localhost:9996/app-grafana` |
+| **URL** | `https://localhost/app-grafana` |
 | **Access** | `Server (default)` |
 
 **4. Configure authentication**
@@ -332,7 +332,7 @@ Under **Custom HTTP Headers**, click **Add header**:
 
 To obtain a JWT token:
 ```bash
-curl -k -X POST https://localhost:9996/yeti-auth/login \
+curl -k -X POST https://localhost/yeti-auth/login \
   -H "Content-Type: application/json" \
   -d '{"username": "admin", "password": "your-password"}'
 ```
@@ -354,17 +354,17 @@ Click **Save & Test**. A green banner reading "Data source is working" confirms 
 
 ## Configuration
 
-### DatasourceConfig (POST /app-grafana/DatasourceConfig)
+### DatasourceConfig (POST /app-grafana/api/DatasourceConfig)
 
 Configure the datasource behavior at runtime by creating or updating the default config record:
 
 ```bash
-curl -k -X POST https://localhost:9996/app-grafana/DatasourceConfig \
+curl -k -X POST https://localhost/app-grafana/api/DatasourceConfig \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{
     "id": "default",
-    "baseUrl": "http://127.0.0.1:9996",
+    "baseUrl": "http://127.0.0.1",
     "allowedApps": "[\"app-siem\", \"yeti-telemetry\"]",
     "timeField": "createdAt"
   }'
@@ -372,7 +372,7 @@ curl -k -X POST https://localhost:9996/app-grafana/DatasourceConfig \
 
 | Field | Example | Effect |
 |-------|---------|--------|
-| `baseUrl` | `http://127.0.0.1:9996` | Where app-grafana fetches table data from. Change this to point at a different yeti instance. |
+| `baseUrl` | `http://127.0.0.1` | Where app-grafana fetches table data from. Change this to point at a different yeti instance. |
 | `allowedApps` | `["app-siem"]` | Restricts `/search` results to only listed app IDs. Empty string or omitted = all apps visible. |
 | `timeField` | `"timestamp"` | Overrides the default time field name for timestamp extraction in time series queries. |
 
@@ -385,10 +385,11 @@ version: "0.1.0"
 description: "Grafana SimpleJSON datasource — query yeti tables from Grafana dashboards"
 
 schemas:
-  - schemas/schema.graphql
+  path: schemas/schema.graphql
 
 resources:
-  - resources/*.rs
+  path: resources/*.rs
+  route: /api
 
 auth:
   methods: [jwt, basic]
