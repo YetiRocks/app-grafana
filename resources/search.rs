@@ -11,7 +11,7 @@ resource!(Search {
     name = "search",
     get(request, ctx) => {
         // Connection test — Grafana SimpleJSON calls GET on the datasource root
-        reply().json(json!({"status": "ok", "message": "Yeti Grafana Datasource"}))
+        ok(json!({"status": "ok", "message": "Yeti Grafana Datasource"}))
     },
     post(request, ctx) => {
         let body: Value = request.json()?;
@@ -43,7 +43,7 @@ resource!(Search {
             targets.iter().filter(|t| t.to_lowercase().contains(&lower)).collect()
         };
 
-        reply().json(json!(filtered))
+        ok(json!(filtered))
     }
 });
 

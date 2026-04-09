@@ -105,7 +105,7 @@ resource!(Query {
             }
         }
 
-        reply().json(json!(results))
+        ok(json!(results))
     }
 });
 
