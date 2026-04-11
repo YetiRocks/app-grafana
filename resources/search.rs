@@ -9,12 +9,12 @@ use yeti_sdk::prelude::*;
 // Also handles GET for connection test (Grafana "Test" button).
 resource!(Search {
     name = "search",
-    get(request, ctx) => {
+    get(ctx) => {
         // Connection test — Grafana SimpleJSON calls GET on the datasource root
         ok(json!({"status": "ok", "message": "Yeti Grafana Datasource"}))
     },
-    post(request, ctx) => {
-        let body: Value = request.json()?;
+    post(ctx) => {
+        let body: Value = ctx.require_json_body()?.clone();
         let filter = body["target"].as_str().unwrap_or("");
         let base_url = get_base_url(&ctx).await;
 
@@ -47,7 +47,7 @@ resource!(Search {
     }
 });
 
-async fn get_base_url(ctx: &ResourceParams) -> String {
+async fn get_base_url(ctx: &Context) -> String {
     let config_table = ctx.get_table("DatasourceConfig");
     if let Ok(table) = config_table {
         if let Ok(Some(config)) = table.get("default").await {

@@ -13,8 +13,8 @@ use yeti_sdk::prelude::*;
 // Target format: "app_id/TableName" (e.g., "yeti-telemetry/Log")
 resource!(Query {
     name = "query",
-    post(request, ctx) => {
-        let body: Value = request.json()?;
+    post(ctx) => {
+        let body: Value = ctx.require_json_body()?.clone();
         let targets = body["targets"].as_array()
             .ok_or_else(|| YetiError::Validation("missing targets array".into()))?;
         let max_points = body["maxDataPoints"].as_u64().unwrap_or(100) as usize;
@@ -142,7 +142,7 @@ fn find_numeric_value(record: &Value) -> Option<f64> {
     None
 }
 
-async fn get_base_url(ctx: &ResourceParams) -> String {
+async fn get_base_url(ctx: &Context) -> String {
     let config_table = ctx.get_table("DatasourceConfig");
     if let Ok(table) = config_table {
         if let Ok(Some(config)) = table.get("default").await {
