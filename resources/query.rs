@@ -143,7 +143,7 @@ fn find_numeric_value(record: &Value) -> Option<f64> {
 }
 
 async fn get_base_url(ctx: &Context) -> String {
-    let config_table = ctx.get_table("DatasourceConfig");
+    let config_table = ctx.table("DatasourceConfig");
     if let Ok(table) = config_table {
         if let Ok(Some(config)) = table.get("default").await {
             if let Some(url) = config["baseUrl"].as_str() {
