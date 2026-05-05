@@ -376,30 +376,35 @@ curl -k -X POST https://localhost:9996/app-grafana/api/DatasourceConfig \
 | `allowedApps` | `["app-siem"]` | Restricts `/search` results to only listed app IDs. Empty string or omitted = all apps visible. |
 | `timeField` | `"timestamp"` | Overrides the default time field name for timestamp extraction in time series queries. |
 
-### config.yaml
+### Cargo.toml ([package.metadata.app])
 
-```yaml
-name: "Grafana Datasource"
-app_id: "app-grafana"
-version: "0.1.0"
-description: "Grafana SimpleJSON datasource — query yeti tables from Grafana dashboards"
+App configuration lives in `Cargo.toml` under `[package.metadata.app]`. There is no separate `config.yaml` or `services.yaml`:
 
-schemas:
-  path: schemas/schema.graphql
+```toml
+[package]
+name = "app-grafana"
+version = "0.1.0"
+edition = "2024"
+description = "Grafana SimpleJSON datasource - query yeti tables from Grafana dashboards"
 
-resources:
-  path: resources/*.rs
-  route: /api
+[package.metadata.app]
+schemas = "schemas/schema.graphql"
+resources = "resources/*.rs"
+```
 
-auth:
-  methods: [jwt, basic]
+To enable auth, add a `[package.metadata.auth]` block:
+
+```toml
+[package.metadata.auth]
+allow_signup = false
+default_role = "viewer"
 ```
 
 ---
 
 ## Authentication
 
-app-grafana uses yeti's built-in auth system configured in `config.yaml`:
+app-grafana uses yeti's built-in auth system configured in `Cargo.toml` under `[package.metadata.auth]`:
 
 - **JWT** and **Basic Auth** are enabled by default
 - In **development mode**, all endpoints are accessible without authentication
@@ -427,7 +432,7 @@ JWT tokens have an expiration time. For long-running Grafana dashboards:
 
 ```
 app-grafana/
-  config.yaml              # App configuration
+  Cargo.toml               # App configuration ([package.metadata.app])
   schemas/
     schema.graphql         # DatasourceConfig table
   resources/
