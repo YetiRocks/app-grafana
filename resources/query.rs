@@ -37,7 +37,7 @@ resource!(Query {
 
             // Fetch records from the table via REST
             let url = format!("{}/{}/{}?limit={}", base_url, app_id, table_name, max_points);
-            let resp = match fetch!(&url).send() {
+            let resp = match fetch(&url).send() {
                 Ok(r) => r,
                 Err(_) => continue,
             };

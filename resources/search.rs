@@ -21,7 +21,7 @@ resource!(Search {
         let mut targets: Vec<String> = Vec::new();
 
         // Fetch app list from /health or /admin/apps
-        if let Ok(resp) = fetch!(&format!("{}/health", base_url)).send() {
+        if let Ok(resp) = fetch(&format!("{}/health", base_url)).send() {
             if resp.ok() {
                 let parsed: Value = serde_json::from_str(&resp.body).unwrap_or(json!({}));
                 if let Some(apps) = parsed["applicationList"].as_array() {
