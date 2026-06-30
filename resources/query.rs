@@ -131,7 +131,10 @@ fn find_numeric_value(record: &Value) -> Option<f64> {
     if let Some(obj) = record.as_object() {
         for (key, val) in obj {
             // Skip known non-metric fields
-            if matches!(key.as_str(), "id" | "timestamp" | "createdAt" | "updatedAt" | "time") {
+            if matches!(
+                key.as_str(),
+                "id" | "timestamp" | "createdAt" | "updatedAt" | "time"
+            ) {
                 continue;
             }
             if let Some(n) = val.as_f64() {
