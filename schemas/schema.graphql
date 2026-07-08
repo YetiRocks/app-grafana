@@ -6,7 +6,7 @@
 #   POST /app-grafana/query      — return time series or table data
 #   POST /app-grafana/annotations — return annotations
 
-type DatasourceConfig @table(database: "app-grafana") @export {
+type DatasourceConfig @table(database: "app-grafana") @distribute @export @access(public: [read, create, update, delete]) {
     id: ID! @primaryKey              # "default"
     baseUrl: String                  # yeti base URL (default http://127.0.0.1:9996)
     allowedApps: String              # JSON array of app_ids to expose (empty = all)
