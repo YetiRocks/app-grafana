@@ -354,12 +354,12 @@ Click **Save & Test**. A green banner reading "Data source is working" confirms 
 
 ## Configuration
 
-### DatasourceConfig (POST /app-grafana/api/DatasourceConfig)
+### DatasourceConfig (POST /app-grafana/api/DatasourceConfig/)
 
 Configure the datasource behavior at runtime by creating or updating the default config record:
 
 ```bash
-curl -k -X POST https://localhost:9996/app-grafana/api/DatasourceConfig \
+curl -k -X POST https://localhost:9996/app-grafana/api/DatasourceConfig/ \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{
